@@ -1,6 +1,7 @@
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
 app.use(express.json());
@@ -39,6 +40,12 @@ app.get('/talker/:id', (req, res) => {
   } else {
     res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
   }
+});
+
+app.post('/login', (req, res) => {
+  // const { email, password } = req.body;
+  const randomToken = crypto.randomBytes(8).toString('hex');
+  res.status(HTTP_OK_STATUS).json({ token: randomToken });
 });
 
 // Não remova esse endpoint, e para o avaliador funcionar

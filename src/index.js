@@ -22,12 +22,26 @@ const loadTalkerData = () => {
   }
 };
 
+// Endpoint para obter todas as pessoas palestrantes
 app.get('/talker', (_req, res) => {
   const talkerData = loadTalkerData();
   res.status(HTTP_OK_STATUS).json(talkerData);
 });
-  
-// não remova esse endpoint, e para o avaliador funcionar
+
+// Endpoint para obter uma pessoa palestrante por ID
+app.get('/talker/:id', (req, res) => {
+  const talkerId = parseInt(req.params.id, 10);
+  const talkerData = loadTalkerData();
+  const foundTalker = talkerData.find((talker) => talker.id === talkerId);
+
+  if (foundTalker) {
+    res.status(HTTP_OK_STATUS).json(foundTalker);
+  } else {
+    res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+  }
+});
+
+// Não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });

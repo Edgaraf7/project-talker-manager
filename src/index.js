@@ -61,113 +61,11 @@ const validatePassword = (req, res, next) => {
 
   next();
 };
-// Middleware para verificar o token de autenticação
-const authenticateToken = (req, res, next) => {
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res.status(401).json({ message: 'Token não encontrado' });
-  }
-
-  if (typeof token !== 'string' || token.length !== 16) {
-    return res.status(401).json({ message: 'Token inválido' });
-  }
-
-  next();
-};
-
-// Middleware para validar o formato da data (dd/mm/aaaa)
-const isValidDate = (dateString) => {
-  const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-  return dateRegex.test(dateString);
-};
 
 // Endpoint para obter todas as pessoas palestrantes
-// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
-app.post('/talker', authenticateToken, (req, res) => {
-  const { name, age, talk } = req.body;
-
-  // Validando o campo "name"
-  if (!name || name.trim().length < 3) {
-    if (!name) {
-      return res.status(HTTP_BAD_REQUEST_STATUS).json({
-        message: 'O campo "name" é obrigatório',
-      });
-    } 
-    return res.status(HTTP_BAD_REQUEST_STATUS).json({
-      message: 'O "name" deve ter pelo menos 3 caracteres',
-    });
-  }
-  // Validando o campo "age"
-  // eslint-disable-next-line no-restricted-globals
-  if (!age && age !== 0) {
-    return res.status(HTTP_BAD_REQUEST_STATUS).json({
-      message: 'O campo "age" é obrigatório',
-    });
-  }
-  
-  // eslint-disable-next-line no-restricted-globals
-  if (isNaN(age) || age < 18 || !Number.isInteger(age)) {
-    return res.status(HTTP_BAD_REQUEST_STATUS).json({
-      message: 'O campo "age" deve ser um número inteiro igual ou maior que 18',
-    });
-  } 
-
-  // Validando o campo "talk"
-  if (!talk || typeof talk !== 'object') {
-    return res.status(HTTP_BAD_REQUEST_STATUS).json({
-      message: 'O campo "talk" é obrigatório',
-    });
-  }
-
-  // Validando a chave "watchedAt"
-  const { watchedAt, rate } = talk;
-
-  if (!watchedAt) {
-    return res.status(HTTP_BAD_REQUEST_STATUS).json({
-      message: 'O campo "watchedAt" é obrigatório',
-    });
-  }
-  
-  if (!isValidDate(watchedAt)) {
-    return res.status(HTTP_BAD_REQUEST_STATUS).json({
-      message: 'O campo "watchedAt" deve ter o formato "dd/mm/aaaa"',
-    });
-  }
-
-  // Validando a chave "rate"
-  // eslint-disable-next-line no-restricted-globals
-
-  if (!rate && rate !== 0) {
-    return res.status(HTTP_BAD_REQUEST_STATUS).json({
-      message: 'O campo "rate" é obrigatório',
-    });
-  }
-  
-  // eslint-disable-next-line no-restricted-globals
-  if (isNaN(rate) || rate < 1 || rate > 5 || !Number.isInteger(rate)) {
-    return res.status(HTTP_BAD_REQUEST_STATUS).json({
-      message: 'O campo "rate" deve ser um número inteiro entre 1 e 5',
-    });
-  }
-
-  // Carregando dados atuais e criando nova pessoa palestrante
+app.get('/talker', (_req, res) => {
   const talkerData = loadTalkerData();
-  const newTalker = {
-    id: talkerData.length + 1,
-    name,
-    age,
-    talk: { watchedAt, rate },
-  };
-
-  // Adicionando a nova pessoa palestrante aos dados
-  talkerData.push(newTalker);
-
-  // Salvando os dados atualizados no arquivo
-  fs.writeFileSync(TALKER_FILE_PATH, JSON.stringify(talkerData, null, 2), 'utf8');
-
-  // Retornando a pessoa palestrante cadastrada
-  res.status(201).json(newTalker);
+  res.status(HTTP_OK_STATUS).json(talkerData);
 });
 
 // Endpoint para obter uma pessoa palestrante por ID
